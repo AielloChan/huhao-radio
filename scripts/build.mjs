@@ -20,6 +20,7 @@ const bankText = await readFile(path.join(root, 'data/questions.json'), 'utf8');
 const bank = JSON.parse(bankText);
 if (!bank.questions?.length) throw new Error('题库为空，请先导入');
 const hash = createHash('sha256').update(bankText);
+hash.update(await readFile(fileURLToPath(import.meta.url)));
 for (const file of files) hash.update(await readFile(path.join(src, file)));
 hash.update(await readFile(path.join(root, 'index.html')));
 const publicFiles = await listFiles(path.join(root,'public'));
@@ -52,10 +53,13 @@ self.addEventListener('activate', event => {
   })());
 });
 self.addEventListener('fetch', event => {
-  if (event.request.method !== 'GET' || new URL(event.request.url).origin !== self.location.origin) return;
+  const url = new URL(event.request.url);
+  const scope = new URL(self.registration.scope);
+  if (event.request.method !== 'GET' || url.origin !== scope.origin || !url.pathname.startsWith(scope.pathname)) return;
   event.respondWith((async () => {
     const cache = await caches.open(CACHE);
-    if (event.request.mode === 'navigate') return (await cache.match('./index.html')) || fetch(event.request);
+    const isAppEntry = url.pathname === scope.pathname || url.pathname === scope.pathname + 'index.html';
+    if (event.request.mode === 'navigate' && isAppEntry) return (await cache.match('./index.html')) || fetch(event.request);
     return (await cache.match(event.request)) || (await caches.match(event.request)) || fetch(event.request);
   })());
 });\n`);
