@@ -6,7 +6,8 @@ export let appVersion = '';
 
 export async function setupPwa(onStatus, canUpdate, notify) {
   try {
-    appVersion = (await (await fetch(new URL('./version.json', import.meta.url))).json()).version;
+    const release = await (await fetch(new URL('./version.json', import.meta.url))).json();
+    appVersion = release.release ? `v${release.release}` : release.version;
     if (!('serviceWorker' in navigator)) return onStatus();
     navigator.serviceWorker.addEventListener('controllerchange', () => {
       if (reloadOnChange) location.reload();
