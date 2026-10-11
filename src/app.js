@@ -1,5 +1,6 @@
 import {makeSession, recordAnswer, finishExam, remainingSeconds, correct, CHAPTERS} from './core.js';
-import {loadState, saveState, emptyState, validateState, STORAGE_KEY} from './storage.js';
+import {loadState, saveState, emptyState, validateState, storageKey} from './storage.js';
+import {classConfig, selectedClass, SELECTED_CLASS_KEY} from './catalog.js';
 import {shell, studyView, examView, wrongView, profileView, quizView, resultView} from './views.js';
 import {escape as e, button, icon, showDialog, closeDialog} from './ui.js';
 import {setupPwa, checkUpdate, offlineReady, appVersion} from './pwa.js';
@@ -15,6 +16,40 @@ let wrongSearch = '';
 let saveBlocked = false;
 let storageMessage = '';
 let toastTimer;
+let switching = false;
+const loadedBanks = new Map();
+
+async function loadClass(classId) {
+  if (!loadedBanks.has(classId)) {
+    const response = await fetch(new URL(classConfig(classId).file, import.meta.url));
+    if (!response.ok) throw new Error(`${classId} 类题库加载失败`);
+    loadedBanks.set(classId, {...await response.json(), classId});
+  }
+  const nextBank = loadedBanks.get(classId);
+  const nextMap = new Map(nextBank.questions.map(q=>[q.id,q]));
+  let nextState;
+  saveBlocked = false; storageMessage = '';
+  try { nextState = loadState(nextMap,classId); }
+  catch {
+    nextState = emptyState(classId); saveBlocked = true;
+    storageMessage = `无法读取 ${classId} 类已有记录，已暂停保存以保护原数据。可先下载原始记录，再导入备份或清空当前类别记录。`;
+  }
+  bank = nextBank; bankMap = nextMap; state = nextState;
+}
+
+async function switchClass(classId) {
+  if (switching || classId === bank.classId) return;
+  if (state.exam) return toast('考试计时中，请交卷后再切换题库');
+  if (!persist()) return toast('当前记录未能保存，请先导出备份后再切换');
+  switching = true; render();
+  try {
+    await loadClass(classId);
+    try { localStorage.setItem(SELECTED_CLASS_KEY,classId); } catch { toast('无法记住题库选择，下次打开将使用默认类别'); }
+    result = null; wrongSearch = '';
+    navigate(tab); tick();
+  } catch (error) { toast(error.message); }
+  finally { switching = false; render(); }
+}
 
 function toast(message) {
   const box = document.querySelector('#toast');
@@ -32,13 +67,13 @@ function currentSession() { return review || (sessionKind === 'exam' ? state.exa
 function top() { window.scrollTo({top:0, behavior:'instant'}); }
 function render() {
   if (!bank) return;
-  const status = {online:navigator.onLine, ready:offlineReady, version:appVersion};
+  const status = {online:navigator.onLine, ready:offlineReady, version:appVersion, classId:bank.classId, switching, examActive:!!state.exam};
   let body;
   if (screen === 'quiz' && currentSession()) body = quizView(currentSession(),bankMap,!!review);
   else if (screen === 'result' && result) body = resultView(result,bankMap);
   else {
     screen = 'home';
-    body = tab === 'exam' ? examView(state) : tab === 'wrong' ? wrongView(state,bank,wrongSearch) : tab === 'profile' ? profileView(state,bank,status) : studyView(state,bank);
+    body = tab === 'exam' ? examView(state,bank.classId) : tab === 'wrong' ? wrongView(state,bank,wrongSearch) : tab === 'profile' ? profileView(state,bank,status) : studyView(state,bank);
   }
   root.innerHTML = shell(tab, `${storageMessage ? `<div class="storage-warning" role="alert">${e(storageMessage)} ${saveBlocked ? button('下载原始记录','export-raw','text-button') : ''}</div>` : ''}${body}`,status,screen==='quiz');
 }
@@ -49,7 +84,7 @@ function navigate(next) {
 }
 function launchPractice(mode, questions = bank.questions) {
   const launch = () => {
-    try { state.practice = makeSession(questions, mode); }
+    try { state.practice = makeSession(questions, mode, Date.now(), bank.classId); }
     catch (error) { return toast(error.message); }
     sessionKind = 'practice'; review = null; screen = 'quiz';
     persist(); closeDialog(); render(); top();
@@ -60,7 +95,7 @@ function launchPractice(mode, questions = bank.questions) {
 }
 function launchExam() {
   if (state.exam) { sessionKind = 'exam'; review = null; screen='quiz'; render(); return; }
-  try { state.exam = makeSession(bank.questions,'exam'); }
+  try { state.exam = makeSession(bank.questions,'exam',Date.now(),bank.classId); }
   catch (error) { return toast(error.message); }
   sessionKind = 'exam'; review = null; screen='quiz'; tab='exam';
   persist(); render(); top();
@@ -101,9 +136,10 @@ function download(name, content) {
   const a = document.createElement('a'); a.href=url; a.download=name; document.body.append(a); a.click(); a.remove();
   setTimeout(()=>URL.revokeObjectURL(url),60000);
 }
-function exportState() { download(`呼号之前-学习备份-${new Date().toISOString().slice(0,10)}.json`,JSON.stringify(state,null,2)); }
+function exportState() { download(`呼号之前-${bank.classId}类-学习备份-${new Date().toISOString().slice(0,10)}.json`,JSON.stringify(state,null,2)); }
 
 const actions = {
+  'switch-class': switchClass,
   sequence: () => launchPractice('sequence'),
   random: () => launchPractice('random'),
   chapter: id => launchPractice('chapter',bank.questions.filter(q=>q.chapter.startsWith(`${id}.`))),
@@ -156,13 +192,14 @@ const actions = {
   'cancel-dialog': closeDialog,
   'check-update': () => checkUpdate(toast),
   export: exportState,
-  'export-raw': () => {try{download('呼号之前-原始记录.json',localStorage.getItem(STORAGE_KEY)||'{}');}catch{toast('无法读取原始记录');}},
+  'export-raw': () => {try{download(`呼号之前-${bank.classId}类-原始记录.json`,localStorage.getItem(storageKey(bank.classId))||'{}');}catch{toast('无法读取原始记录');}},
   import: () => document.querySelector('#import-file').click(),
-  reset: () => confirmAction('清空所有学习记录？','答题进度、错题本和考试记录都会删除。建议先导出备份，这个操作无法撤销。','确认清空',()=>{
-    state=emptyState();saveBlocked=false;persist();screen='home';review=null;result=null;closeDialog();render();toast('学习记录已清空');
+  reset: () => confirmAction(`清空 ${bank.classId} 类学习记录？`,'仅删除当前类别的答题进度、错题本和考试记录，其他类别不受影响。建议先导出备份，这个操作无法撤销。','确认清空',()=>{
+    state=emptyState(bank.classId);saveBlocked=false;persist();screen='home';review=null;result=null;closeDialog();render();toast(`${bank.classId} 类学习记录已清空`);
   })
 };
 document.addEventListener('click', event => {
+  if (switching) { event.preventDefault(); return; }
   const navigation = event.target.closest('a[href^="#"]');
   if (navigation && navigation.hash === location.hash) {
     event.preventDefault();
@@ -185,8 +222,8 @@ document.addEventListener('change', async event => {
   const file=event.target.files[0];if(!file)return;
   try {
     if(file.size>10_000_000)throw new Error('备份文件过大，请选择本应用导出的 JSON');
-    const imported=validateState(JSON.parse(await file.text()),bankMap);
-    confirmAction('导入这份学习记录？',`将用备份中的 ${Object.keys(imported.records).length} 道答题记录替换当前数据。建议先导出当前记录。`,'确认导入',()=>{
+    const imported=validateState(JSON.parse(await file.text()),bankMap,bank.classId);
+    confirmAction(`导入 ${bank.classId} 类学习记录？`,`将用备份中的 ${Object.keys(imported.records).length} 道答题记录替换当前类别数据，其他类别不受影响。建议先导出当前记录。`,'确认导入',()=>{
       state=imported;saveBlocked=false;persist();review=null;result=null;screen='home';closeDialog();tick();render();toast('备份已导入');
     });
   }catch(error){toast(`导入失败：${error.message}`);}
@@ -197,19 +234,13 @@ window.addEventListener('online',render);
 window.addEventListener('offline',render);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)tick();});
 window.addEventListener('storage',event=>{
-  if(event.key!==STORAGE_KEY || saveBlocked)return;
-  try {state=loadState(bankMap);render();toast('已同步另一窗口的学习记录');tick();}catch{toast('另一窗口的记录无法读取，请导出备份后重试');}
+  if(!bank || event.key!==storageKey(bank.classId) || saveBlocked)return;
+  try {state=loadState(bankMap,bank.classId);review=null;result=null;screen='home';render();toast('已同步另一窗口的学习记录');tick();}catch{toast('另一窗口的记录无法读取，请导出备份后重试');}
 });
 
 async function init() {
   try {
-    const response=await fetch(new URL('./questions.json',import.meta.url));
-    if(!response.ok)throw new Error('题库加载失败');
-    bank=await response.json();bankMap=new Map(bank.questions.map(q=>[q.id,q]));
-    try{state=loadState(bankMap);}catch{
-      state=emptyState();saveBlocked=true;
-      storageMessage='无法读取已有记录，已暂停保存以保护原数据。可先下载原始记录，再到「我的」导入备份或清空记录。';
-    }
+    await loadClass(selectedClass());
     navigate(location.hash.slice(1));tick();
     setInterval(tick,1000);
     setupPwa(render,()=>!state.exam,toast);

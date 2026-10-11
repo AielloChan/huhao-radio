@@ -1,0 +1,628 @@
+{
+  "sourceSha256": "1ce64f15cf544d606c5f26c49318f147b754ef042e5efb530ef3c304fe0803bd",
+  "provenance": {
+    "userPdf": "业余无线电C证题库.pdf",
+    "userPdfSha256": "94c525cdadf210ac3d183d17c80d9bef829eebcf1fe93e550917e5e39b5d0098",
+    "officialPdfSha256": "94c525cdadf210ac3d183d17c80d9bef829eebcf1fe93e550917e5e39b5d0098",
+    "relationship": "用户 PDF 与官网链接下载的 PDF 逐字节一致。使用 Poppler 按页面阅读顺序抽取字段，不更改原题答案。",
+    "imagePdfSha256": "b747b7afec132b21383f67f1dba58d42bfa3365b9b7094f7f109916eb8b05aba"
+  },
+  "reference": {
+    "title": "CRAC 业余无线电台操作技术能力验证题库（2025年版）C 类",
+    "page": "https://www.crac.org.cn/?p=1287",
+    "pdf": "https://www.crac.org.cn/userfiles/file/20250809/20250809124246_6142.pdf",
+    "checkedOn": "2026-10-11"
+  },
+  "extraction": {
+    "tool": "pdftotext -layout",
+    "pages": 309,
+    "removedPageNumbers": 309,
+    "lineWraps": "仅合并 PDF 排版换行；保留字段内字符和原文标点。"
+  },
+  "verification": {
+    "scope": "以下人工及独立抽取核验仅适用于本报告记录的 PDF SHA256，导入器拒绝其他 PDF 版本。",
+    "independentExtraction": "与 pdfplumber 按坐标顺序独立抽取的全部题号、旧编号、章节、题干、答案、选项和附图引用逐字段比对，忽略空白后零差异。",
+    "fontAudit": "遍历全部正文字符，B 正文字号均为 10.45；C 正文字号均为 10.45、页码为 9。未发现缩小字号的上下标字符。",
+    "visualSamples": "目视核对 B 第 220 页的十进制指数、C 第 232 页的 LC 谐振根式和第 300 页的对数增益公式；原 PDF 使用显式＾、/、括号表达指数和分式，导入保留原符号。未声称对每道正文题目逐页目视核对。",
+    "images": "全部 3 页附图已目视核对，53 张图片按内嵌资源提取；另检查了生成的完整图片联系表。"
+  },
+  "policy": "题型以官方答案数量为准；题号、章节、题干、答案及四个选项全部必填；重复题号、未知附图、无法识别的答案一律中止导入。",
+  "imageNotes": [
+    "所有附图均从官方附图 PDF 内嵌原图转换为 PNG，无重绘。",
+    "LK0609、LK0610、LK0611 图片在第 1 页底部，其图号标签跨页至第 2 页顶部。",
+    "第 1 页 LK0603 图号原文漏印末位 3（显示 LK060），位于 LK0602 与 LK0604 之间；已对照 MC1-1168 的 LK0603.jpg 引用及高通电路结构核对。"
+  ],
+  "stats": {
+    "total": 1282,
+    "usable": 1282,
+    "single": 1072,
+    "multiple": 210,
+    "issueCount": 0,
+    "chapters": {
+      "1.1.1": 5,
+      "1.1.2": 21,
+      "1.2.2": 4,
+      "1.2.3": 2,
+      "1.2.4": 5,
+      "1.3.2": 16,
+      "1.4.3": 4,
+      "1.5.1": 8,
+      "1.5.2": 26,
+      "1.5.3": 4,
+      "1.6.1": 10,
+      "1.6.2": 18,
+      "1.7.1": 33,
+      "1.7.2": 25,
+      "2.1.1": 3,
+      "2.1.2": 8,
+      "2.1.3": 2,
+      "2.1.4": 1,
+      "2.1.5": 9,
+      "2.1.6": 4,
+      "2.2.2": 7,
+      "2.2.3": 8,
+      "2.2.4": 3,
+      "2.2.5": 21,
+      "2.3.1": 10,
+      "2.3.2": 27,
+      "2.4.1": 31,
+      "2.4.2": 51,
+      "2.5.1": 23,
+      "2.5.2": 27,
+      "2.6.1": 6,
+      "2.6.2": 31,
+      "2.6.3": 3,
+      "2.6.4": 2,
+      "2.6.5": 6,
+      "2.7.1": 18,
+      "2.7.2": 3,
+      "2.7.3": 8,
+      "2.7.4": 3,
+      "2.7.5": 8,
+      "2.7.6": 2,
+      "3.1.2": 6,
+      "3.1.3": 27,
+      "3.2.1": 17,
+      "3.2.2": 1,
+      "3.2.3": 6,
+      "3.3.1": 21,
+      "3.3.2": 8,
+      "3.3.3": 11,
+      "3.3.4": 20,
+      "3.3.5": 4,
+      "3.3.6": 6,
+      "3.4.1": 25,
+      "3.4.2": 3,
+      "3.4.3": 6,
+      "3.4.4": 1,
+      "3.4.5": 4,
+      "3.4.6": 3,
+      "3.5.1": 6,
+      "3.5.2": 18,
+      "3.5.3": 5,
+      "3.5.4": 18,
+      "3.5.5": 8,
+      "3.5.6": 3,
+      "3.6.1": 34,
+      "3.6.2": 6,
+      "3.6.3": 28,
+      "3.6.4": 4,
+      "3.7.1": 4,
+      "3.7.2": 4,
+      "3.7.3": 9,
+      "3.8.1": 8,
+      "4.1.2": 17,
+      "4.1.3": 24,
+      "4.1.4": 10,
+      "4.1.5": 13,
+      "4.2.1": 16,
+      "4.2.2": 17,
+      "4.2.3": 6,
+      "4.2.4": 25,
+      "4.2.5": 7,
+      "4.3.1": 15,
+      "4.3.2": 48,
+      "4.3.3": 4,
+      "4.3.4": 24,
+      "4.4.1": 29,
+      "4.4.2": 40,
+      "4.4.3": 33,
+      "4.4.4": 12,
+      "4.4.5": 7,
+      "4.4.6": 5,
+      "4.5.1": 9,
+      "4.5.2": 4,
+      "4.5.3": 3,
+      "4.5.4": 6,
+      "4.6.1": 8,
+      "4.6.2": 8,
+      "4.6.3": 5,
+      "4.6.4": 26,
+      "5.1.1": 8,
+      "5.1.2": 5,
+      "5.1.3": 7,
+      "5.1.4": 8,
+      "5.1.5": 3
+    }
+  },
+  "recoveredImages": [
+    {
+      "id": "MC1-0665",
+      "sourceName": "LK0944.jpg",
+      "image": "./question-images/LK0944.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 3,
+      "resource": "Image71.jpg",
+      "sha256": "5297f593eccf5e27f9f4bd346d9d4205988c8c9092ac412e98a4f4ef49571fe3"
+    },
+    {
+      "id": "MC1-0740",
+      "sourceName": "LK0941.jpg",
+      "image": "./question-images/LK0941.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 3,
+      "resource": "Image68.jpg",
+      "sha256": "47efc35a8b1bbd65c8f49416139ac55e999ad7287c46f8fe98ecb315c2e3d711"
+    },
+    {
+      "id": "MC1-0741",
+      "sourceName": "LK0942.jpg",
+      "image": "./question-images/LK0942.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 3,
+      "resource": "Image69.jpg",
+      "sha256": "1fff63974557a88ab7370545747967918deedc362a972eb90dcfabd401a3e6a1"
+    },
+    {
+      "id": "MC1-0742",
+      "sourceName": "LK0943.jpg",
+      "image": "./question-images/LK0943.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 3,
+      "resource": "Image70.jpg",
+      "sha256": "308a1eea8befc64aac12357e2f5f6f06b4c332dd20ad4fd3d1f9a1fbe16bc86f"
+    },
+    {
+      "id": "MC1-0743",
+      "sourceName": "LK0945.jpg",
+      "image": "./question-images/LK0945.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 3,
+      "resource": "Image72.jpg",
+      "sha256": "09e24238d763e801e6f6361f02ef89b768f4d5b2e1026dd95b664bb110d5e59c"
+    },
+    {
+      "id": "MC1-0757",
+      "sourceName": "LK0938.jpg",
+      "image": "./question-images/LK0938.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 2,
+      "resource": "Image65.jpg",
+      "sha256": "80d9c2bfa5452631203dca3570485a7d1ab142c9b36cef6ae823b1e7b7781ab9"
+    },
+    {
+      "id": "MC1-0788",
+      "sourceName": "LK0927.jpg",
+      "image": "./question-images/LK0927.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 2,
+      "resource": "Image63.jpg",
+      "sha256": "ab8071b96453a95b7d922efd48e250a5e74482e63195c24fb558b65be417fc54"
+    },
+    {
+      "id": "MC1-0789",
+      "sourceName": "LK0928.jpg",
+      "image": "./question-images/LK0928.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 2,
+      "resource": "Image64.jpg",
+      "sha256": "d18ed7c5f4945e43d61b04ae739ae79385098086ac29c1604ea76e8db1dd2dd2"
+    },
+    {
+      "id": "MC1-1059",
+      "sourceName": "LK0497.jpg",
+      "image": "./question-images/LK0497.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 1,
+      "resource": "Image16.jpg",
+      "sha256": "78ff340295ad48522f31e434fb8a7e8a64b57dc823ec55dba1cfdd12444f560f"
+    },
+    {
+      "id": "MC1-1060",
+      "sourceName": "LK0498.jpg",
+      "image": "./question-images/LK0498.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 1,
+      "resource": "Image17.jpg",
+      "sha256": "1ebf72f22b6b75ee26cd7bfcc97c25d7e51c4d4703c43464f6906b015087ca26"
+    },
+    {
+      "id": "MC1-1061",
+      "sourceName": "LK0499.jpg",
+      "image": "./question-images/LK0499.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 1,
+      "resource": "Image18.jpg",
+      "sha256": "2ca29af44b1df7ea976624f57995274dbf5193f7371addf159b6377130458e9e"
+    },
+    {
+      "id": "MC1-1062",
+      "sourceName": "LK0500.jpg",
+      "image": "./question-images/LK0500.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 1,
+      "resource": "Image19.jpg",
+      "sha256": "569d60d94041e77997bc68afa953db8439c986f13c9456913f0de463d4138e22"
+    },
+    {
+      "id": "MC1-1063",
+      "sourceName": "LK0501.jpg",
+      "image": "./question-images/LK0501.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 1,
+      "resource": "Image20.jpg",
+      "sha256": "b14de7ee492870a233d67e35671fd1356b8a37b81c523acdd80b2ac4a9d58459"
+    },
+    {
+      "id": "MC1-1064",
+      "sourceName": "LK0502.jpg",
+      "image": "./question-images/LK0502.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 1,
+      "resource": "Image21.jpg",
+      "sha256": "26127798739430986692aa0afcfdd98604cd1bcbfbcec6c5088525d8011ae657"
+    },
+    {
+      "id": "MC1-1065",
+      "sourceName": "LK0503.jpg",
+      "image": "./question-images/LK0503.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 1,
+      "resource": "Image22.jpg",
+      "sha256": "8f975865206c4d20ff48ee13153627b04b9915b03ffbd3855d819ac271f3d842"
+    },
+    {
+      "id": "MC1-1066",
+      "sourceName": "LK0504.jpg",
+      "image": "./question-images/LK0504.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 1,
+      "resource": "Image23.jpg",
+      "sha256": "e40a6a8830cf539828998d10b7343831d91cfc83bfa8a9946f6260d00eb05e00"
+    },
+    {
+      "id": "MC1-1067",
+      "sourceName": "LK0505.jpg",
+      "image": "./question-images/LK0505.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 1,
+      "resource": "Image24.jpg",
+      "sha256": "1c708e99ac0593bbc4c5cd202156b3ca3883cf9c4b22ddf5ff3c03780faa473e"
+    },
+    {
+      "id": "MC1-1068",
+      "sourceName": "LK0506.jpg",
+      "image": "./question-images/LK0506.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 1,
+      "resource": "Image25.jpg",
+      "sha256": "4593e117aca54b1f61aae75ace17b8c791e860aa56be0fc4b1fe456823a37408"
+    },
+    {
+      "id": "MC1-1069",
+      "sourceName": "LK0507.jpg",
+      "image": "./question-images/LK0507.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 1,
+      "resource": "Image26.jpg",
+      "sha256": "615a19e2c51a7f70c0bf9a3f4d0bf15cd9360ba54e44443fbc2448b252eaed7d"
+    },
+    {
+      "id": "MC1-1070",
+      "sourceName": "LK0508.jpg",
+      "image": "./question-images/LK0508.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 1,
+      "resource": "Image27.jpg",
+      "sha256": "eb44e7a6c13f64f96187d1b09844f72a3b33a0ba7a9518f12739549f932c6341"
+    },
+    {
+      "id": "MC1-1071",
+      "sourceName": "LK0509.jpg",
+      "image": "./question-images/LK0509.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 1,
+      "resource": "Image28.jpg",
+      "sha256": "c17a68ef13072f2b94d40d00449d1921eab1cbf791658c6fbcae5fda8293e280"
+    },
+    {
+      "id": "MC1-1072",
+      "sourceName": "LK0510.jpg",
+      "image": "./question-images/LK0510.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 1,
+      "resource": "Image29.jpg",
+      "sha256": "337192aab98454f9a4eac6148bf26f10ff2fb7929f9848a3249b60aa4b3dccf3"
+    },
+    {
+      "id": "MC1-1073",
+      "sourceName": "LK0511.jpg",
+      "image": "./question-images/LK0511.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 1,
+      "resource": "Image30.jpg",
+      "sha256": "789a518def54ce2e3097fd9e07a9f044c5152c5aaca8e85f7e6c471522351cf1"
+    },
+    {
+      "id": "MC1-1150",
+      "sourceName": "LK0734.jpg",
+      "image": "./question-images/LK0734.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 2,
+      "resource": "Image54.jpg",
+      "sha256": "ba60aa66c5602b978e9b64e6810234b500824c7cbb5cadfb009023c04bbcc995"
+    },
+    {
+      "id": "MC1-1151",
+      "sourceName": "LK0735.jpg",
+      "image": "./question-images/LK0735.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 2,
+      "resource": "Image55.jpg",
+      "sha256": "915c760439a29da0b9f34e808992c8bcdbc4cc4c594793cbbddbdef08857cbea"
+    },
+    {
+      "id": "MC1-1152",
+      "sourceName": "LK0736.jpg",
+      "image": "./question-images/LK0736.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 2,
+      "resource": "Image56.jpg",
+      "sha256": "4d05718d0e1f477988b80cb84618f1db1547cedf3d2e3c3a47ca10d3bb68c33c"
+    },
+    {
+      "id": "MC1-1153",
+      "sourceName": "LK0740.jpg",
+      "image": "./question-images/LK0740.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 2,
+      "resource": "Image57.jpg",
+      "sha256": "a044e3bb33c52bd3a03e4be0a4551796f535e67b3cc564605ad5e648e42f5992"
+    },
+    {
+      "id": "MC1-1154",
+      "sourceName": "LK0741.jpg",
+      "image": "./question-images/LK0741.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 2,
+      "resource": "Image58.jpg",
+      "sha256": "1d953b81e044fdb5b587b532dc934a07d22223c5704bdc60642c1b1f03be3d1c"
+    },
+    {
+      "id": "MC1-1155",
+      "sourceName": "LK0742.jpg",
+      "image": "./question-images/LK0742.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 2,
+      "resource": "Image59.jpg",
+      "sha256": "85994b2e1bd3fe3065eccb1d4177fe213d150e887071390d22b99eaaceb4576d"
+    },
+    {
+      "id": "MC1-1156",
+      "sourceName": "LK0743.jpg",
+      "image": "./question-images/LK0743.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 2,
+      "resource": "Image60.jpg",
+      "sha256": "ea7fccb6ad86723fade1dbd5970c8f6eb8f92ebe042e93295423aa87e90973db"
+    },
+    {
+      "id": "MC1-1157",
+      "sourceName": "LK0744.jpg",
+      "image": "./question-images/LK0744.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 2,
+      "resource": "Image61.jpg",
+      "sha256": "81d253502dab2dfd0fe68ccc49a60e76b3f5a12a3666f528664566a2dbe75b0e"
+    },
+    {
+      "id": "MC1-1158",
+      "sourceName": "LK0745.jpg",
+      "image": "./question-images/LK0745.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 2,
+      "resource": "Image62.jpg",
+      "sha256": "893f29da5628e7705879bedece53b7a3c01074f5d8df8d525a905c56cb1d2dfa"
+    },
+    {
+      "id": "MC1-1159",
+      "sourceName": "LK0594.jpg",
+      "image": "./question-images/LK0594.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 1,
+      "resource": "Image31.jpg",
+      "sha256": "5ffbf6aad0875c9bc638adb4e7780a06eb4385f1114b003e75f8d83b5c518456"
+    },
+    {
+      "id": "MC1-1160",
+      "sourceName": "LK0595.jpg",
+      "image": "./question-images/LK0595.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 1,
+      "resource": "Image32.jpg",
+      "sha256": "2f4eecd9c86a1440fb044c6554289054977f9d788d91916845cab018f070f0b3"
+    },
+    {
+      "id": "MC1-1161",
+      "sourceName": "LK0596.jpg",
+      "image": "./question-images/LK0596.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 1,
+      "resource": "Image33.jpg",
+      "sha256": "d78d4d9ef52517397352dd45e66137551d8e710b05957003b1ae22e94df5b416"
+    },
+    {
+      "id": "MC1-1162",
+      "sourceName": "LK0597.jpg",
+      "image": "./question-images/LK0597.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 1,
+      "resource": "Image34.jpg",
+      "sha256": "a007b759220d091b9fd5fe17536b11ae97991822591becd0feec9cb1ba20b0c4"
+    },
+    {
+      "id": "MC1-1163",
+      "sourceName": "LK0598.jpg",
+      "image": "./question-images/LK0598.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 1,
+      "resource": "Image35.jpg",
+      "sha256": "4db4b7b8116e78fc44cb218a39cd055eb5e89367c9f1be7c1945934b7d8c4990"
+    },
+    {
+      "id": "MC1-1164",
+      "sourceName": "LK0599.jpg",
+      "image": "./question-images/LK0599.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 1,
+      "resource": "Image36.jpg",
+      "sha256": "eeb2387616d7ba384b125330ec433eb290f2ee2dd0cad14b2d4049a821b0d834"
+    },
+    {
+      "id": "MC1-1165",
+      "sourceName": "LK0600.jpg",
+      "image": "./question-images/LK0600.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 1,
+      "resource": "Image37.jpg",
+      "sha256": "9b81d187b2ff4fb7cca5abbac10129e124c4b93ae6f9dc9a83765d8eaaa45f88"
+    },
+    {
+      "id": "MC1-1166",
+      "sourceName": "LK0601.jpg",
+      "image": "./question-images/LK0601.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 1,
+      "resource": "Image38.jpg",
+      "sha256": "71b2b66c6256c5f9c2bfebd616d27ed1c6f01a41426b390a33b6beb015110000"
+    },
+    {
+      "id": "MC1-1167",
+      "sourceName": "LK0602.jpg",
+      "image": "./question-images/LK0602.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 1,
+      "resource": "Image39.jpg",
+      "sha256": "a0202004d6b4070f63fbe43499b889e8986e38fc85738a84e9c691f3f0b354b4"
+    },
+    {
+      "id": "MC1-1168",
+      "sourceName": "LK0603.jpg",
+      "image": "./question-images/LK0603.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 1,
+      "resource": "Image40.jpg",
+      "sha256": "d3ace688458e7d2f441c5f64779c668363b4d150d37b5a57f73aaecb28339396"
+    },
+    {
+      "id": "MC1-1169",
+      "sourceName": "LK0604.jpg",
+      "image": "./question-images/LK0604.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 1,
+      "resource": "Image41.jpg",
+      "sha256": "ca9928e4674ab1ea7eb041fcad8c8d9e3e3e8f99120877abb3f819197513eb65"
+    },
+    {
+      "id": "MC1-1170",
+      "sourceName": "LK0605.jpg",
+      "image": "./question-images/LK0605.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 1,
+      "resource": "Image42.jpg",
+      "sha256": "79ff3696aaa9e56bd0ca8acaa5758e508d8aeead6cc16ba0a22c03ac4e9dbdd7"
+    },
+    {
+      "id": "MC1-1171",
+      "sourceName": "LK0606.jpg",
+      "image": "./question-images/LK0606.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 1,
+      "resource": "Image43.jpg",
+      "sha256": "7c058a0cbed102e8cb238e8593de42253459b3e731be04893090f9eb451ba953"
+    },
+    {
+      "id": "MC1-1172",
+      "sourceName": "LK0607.jpg",
+      "image": "./question-images/LK0607.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 1,
+      "resource": "Image44.jpg",
+      "sha256": "5d680c12b5c784a12fabe4c0e3c7e9b97def76b61c59d3bb59f778dec4d26693"
+    },
+    {
+      "id": "MC1-1173",
+      "sourceName": "LK0608.jpg",
+      "image": "./question-images/LK0608.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 1,
+      "resource": "Image45.jpg",
+      "sha256": "da3393a0d953cf21da6fe9706eb6bf20336d06fda4a818824dcb623a3ee1b6de"
+    },
+    {
+      "id": "MC1-1174",
+      "sourceName": "LK0609.jpg",
+      "image": "./question-images/LK0609.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 1,
+      "resource": "Image46.jpg",
+      "sha256": "d7c4b41d4e81378cd15a9ee9db5da0216eb09846ebab9cfcf490c9de88171e5d"
+    },
+    {
+      "id": "MC1-1175",
+      "sourceName": "LK0610.jpg",
+      "image": "./question-images/LK0610.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 1,
+      "resource": "Image47.jpg",
+      "sha256": "dcf405e665275678de34dd14b90488cab381b6b0a3dcbe328cd3a19b4d7d89b0"
+    },
+    {
+      "id": "MC1-1176",
+      "sourceName": "LK0611.jpg",
+      "image": "./question-images/LK0611.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 1,
+      "resource": "Image48.jpg",
+      "sha256": "8e85ab975ca3d21d6b11925df337d66a0cb8ec5a6dd5f8e0a291836a7ed3f134"
+    },
+    {
+      "id": "MC1-1177",
+      "sourceName": "LK0612.jpg",
+      "image": "./question-images/LK0612.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 2,
+      "resource": "Image51.jpg",
+      "sha256": "065db09f5390997d10db0c832104c405593165dd168e9f7fa2e4b021bf19b2c8"
+    },
+    {
+      "id": "MC1-1178",
+      "sourceName": "LK0613.jpg",
+      "image": "./question-images/LK0613.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 2,
+      "resource": "Image52.jpg",
+      "sha256": "f0428027e9e16b6dca0ee43328c7d2f73ca6bd0f37d52b8c7fa4c0977e624ba0"
+    },
+    {
+      "id": "MC1-1314",
+      "sourceName": "LK0614.jpg",
+      "image": "./question-images/LK0614.png",
+      "reference": "https://www.crac.org.cn/userfiles/file/20250728/20250728134354_1198.pdf",
+      "page": 2,
+      "resource": "Image53.jpg",
+      "sha256": "7614840ffc723d206193e758c4a72f820d4edd6819d592e48c71c3f50b2a8cd0"
+    }
+  ],
+  "unresolved": []
+}

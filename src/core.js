@@ -1,4 +1,4 @@
-export const EXAM = {total: 40, single: 32, multiple: 8, minutes: 40, pass: 30};
+import {classConfig} from './catalog.js';
 export const CHAPTERS = {'1': '法规与管理', '2': '通信规程与操作', '3': '设备、天线与传播', '4': '电工基础与测量', '5': '技术规范与安全'};
 
 export function shuffle(items, random = Math.random) {
@@ -14,18 +14,19 @@ export function correct(question, selected = []) {
   return selected.length === question.answers.length && question.answers.every(id => selected.includes(id));
 }
 
-export function makeSession(questions, mode, now = Date.now()) {
+export function makeSession(questions, mode, now = Date.now(), classId = 'A') {
+  const exam = classConfig(classId).exam;
   let pool = questions.filter(q => !q.issue);
   if (mode === 'exam') {
     const singles = pool.filter(q => q.answers.length === 1);
     const multiples = pool.filter(q => q.answers.length > 1);
-    if (singles.length < EXAM.single || multiples.length < EXAM.multiple) throw new Error('可用题目不足，无法生成试卷');
-    pool = shuffle([...shuffle(singles).slice(0, EXAM.single), ...shuffle(multiples).slice(0, EXAM.multiple)]);
+    if (singles.length < exam.single || multiples.length < exam.multiple) throw new Error('可用题目不足，无法生成试卷');
+    pool = shuffle([...shuffle(singles).slice(0, exam.single), ...shuffle(multiples).slice(0, exam.multiple)]);
   } else if (mode === 'random' || mode === 'wrong') pool = shuffle(pool);
   if (!pool.length) throw new Error('当前没有可练习的题目');
   return {
-    id: globalThis.crypto.randomUUID(), mode, startedAt: now,
-    deadline: mode === 'exam' ? now + EXAM.minutes * 60_000 : null,
+    id: globalThis.crypto.randomUUID(), classId, mode, startedAt: now,
+    deadline: mode === 'exam' ? now + exam.minutes * 60_000 : null,
     ids: pool.map(q => q.id),
     order: Object.fromEntries(pool.map(q => [q.id, shuffle(q.options.map(o => o.id))])),
     answers: {}, checked: {}, index: 0, finishedAt: null

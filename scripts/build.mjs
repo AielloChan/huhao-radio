@@ -2,6 +2,7 @@ import {readFile, writeFile, mkdir, readdir, cp, rm} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import path from 'node:path';
+import {CLASS_IDS, classConfig} from '../src/catalog.js';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 async function listFiles(directory, prefix = '') {
@@ -16,10 +17,15 @@ async function listFiles(directory, prefix = '') {
 }
 const src = path.join(root, 'src');
 const files = (await readdir(src)).sort();
-const bankText = await readFile(path.join(root, 'data/questions.json'), 'utf8');
-const bank = JSON.parse(bankText);
-if (!bank.questions?.length) throw new Error('题库为空，请先导入');
-const hash = createHash('sha256').update(bankText);
+const banks = await Promise.all(CLASS_IDS.map(async classId => {
+  const source = classId === 'A' ? 'data/questions.json' : `data/${classId.toLowerCase()}/questions.json`;
+  const text = await readFile(path.join(root, source), 'utf8');
+  const bank = JSON.parse(text);
+  if (!bank.questions?.length) throw new Error(`${classId} 类题库为空，请先导入`);
+  return {classId, text, count:bank.questions.length, file:classConfig(classId).file};
+}));
+const hash = createHash('sha256');
+for (const bank of banks) hash.update(bank.classId).update(bank.text);
 hash.update(await readFile(fileURLToPath(import.meta.url)));
 for (const file of files) hash.update(await readFile(path.join(src, file)));
 hash.update(await readFile(path.join(root, 'index.html')));
@@ -33,11 +39,11 @@ await mkdir(path.join(dist, assets), {recursive: true});
 await cp(path.join(root, 'public'), dist, {recursive: true});
 await cp(src, path.join(dist, assets), {recursive: true});
 await cp(path.join(root, 'public/icons/apple-touch-icon.png'), path.join(dist, assets, 'apple-touch-icon.png'));
-await writeFile(path.join(dist, assets, 'questions.json'), bankText);
+for (const bank of banks) await writeFile(path.join(dist, assets, bank.file), bank.text);
 await writeFile(path.join(dist, assets, 'version.json'), JSON.stringify({version}));
 const html = (await readFile(path.join(root, 'index.html'), 'utf8')).replaceAll('__ASSETS__', `./${assets}`);
 await writeFile(path.join(dist, 'index.html'), html);
-const cached = ['./', './index.html', ...publicFiles.filter(f=>!f.startsWith('_') && !f.startsWith('force-update/')).map(f=>`./${f}`), ...files.map(f => `./${assets}/${f}`), `./${assets}/questions.json`, `./${assets}/version.json`, `./${assets}/apple-touch-icon.png`];
+const cached = ['./', './index.html', ...publicFiles.filter(f=>!f.startsWith('_') && !f.startsWith('force-update/')).map(f=>`./${f}`), ...files.map(f => `./${assets}/${f}`), ...banks.map(bank=>`./${assets}/${bank.file}`), `./${assets}/version.json`, `./${assets}/apple-touch-icon.png`];
 await writeFile(path.join(dist, 'sw.js'), `// Generated from the complete application content.\nconst CACHE = 'radio-a-${version}';\nconst ASSETS = ${JSON.stringify(cached)};
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)));
@@ -69,4 +75,4 @@ self.addEventListener('fetch', event => {
     return (await cache.match(event.request)) || (await caches.match(event.request)) || fetch(event.request);
   })());
 });\n`);
-console.log(`Built ${bank.questions.length} questions → dist (${version})`);
+console.log(`Built ${banks.map(bank=>`${bank.classId}: ${bank.count}`).join(', ')} questions → dist (${version})`);
