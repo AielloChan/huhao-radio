@@ -32,11 +32,12 @@ const assets = `assets/${version}`;
 await mkdir(path.join(dist, assets), {recursive: true});
 await cp(path.join(root, 'public'), dist, {recursive: true});
 await cp(src, path.join(dist, assets), {recursive: true});
+await cp(path.join(root, 'public/icons/apple-touch-icon.png'), path.join(dist, assets, 'apple-touch-icon.png'));
 await writeFile(path.join(dist, assets, 'questions.json'), bankText);
 await writeFile(path.join(dist, assets, 'version.json'), JSON.stringify({version}));
 const html = (await readFile(path.join(root, 'index.html'), 'utf8')).replaceAll('__ASSETS__', `./${assets}`);
 await writeFile(path.join(dist, 'index.html'), html);
-const cached = ['./', './index.html', ...publicFiles.filter(f=>!f.startsWith('_') && !f.startsWith('force-update/')).map(f=>`./${f}`), ...files.map(f => `./${assets}/${f}`), `./${assets}/questions.json`, `./${assets}/version.json`];
+const cached = ['./', './index.html', ...publicFiles.filter(f=>!f.startsWith('_') && !f.startsWith('force-update/')).map(f=>`./${f}`), ...files.map(f => `./${assets}/${f}`), `./${assets}/questions.json`, `./${assets}/version.json`, `./${assets}/apple-touch-icon.png`];
 await writeFile(path.join(dist, 'sw.js'), `// Generated from the complete application content.\nconst CACHE = 'radio-a-${version}';\nconst ASSETS = ${JSON.stringify(cached)};
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)));

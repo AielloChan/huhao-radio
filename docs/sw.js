@@ -1,6 +1,6 @@
 // Generated from the complete application content.
-const CACHE = 'radio-a-03607f45f66c';
-const ASSETS = ["./","./index.html","./icons/apple-touch-icon.png","./icons/icon-192.png","./icons/icon-512.png","./manifest.webmanifest","./question-images/LK0944.png","./assets/03607f45f66c/app.js","./assets/03607f45f66c/core.js","./assets/03607f45f66c/pwa.js","./assets/03607f45f66c/storage.js","./assets/03607f45f66c/styles.css","./assets/03607f45f66c/ui.js","./assets/03607f45f66c/views.js","./assets/03607f45f66c/questions.json","./assets/03607f45f66c/version.json"];
+const CACHE = 'radio-a-16607ad18943';
+const ASSETS = ["./","./index.html","./icons/apple-touch-icon.png","./icons/icon-192.png","./icons/icon-512.png","./manifest.webmanifest","./question-images/LK0944.png","./assets/16607ad18943/app.js","./assets/16607ad18943/core.js","./assets/16607ad18943/pwa.js","./assets/16607ad18943/storage.js","./assets/16607ad18943/styles.css","./assets/16607ad18943/ui.js","./assets/16607ad18943/views.js","./assets/16607ad18943/questions.json","./assets/16607ad18943/version.json","./assets/16607ad18943/apple-touch-icon.png"];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)));
 });
