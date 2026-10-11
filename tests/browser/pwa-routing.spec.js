@@ -16,7 +16,7 @@ test('直接打开安装图标在线和离线均返回原图，未知路径保�
     await expect(page.locator('img')).toBeVisible();
     expect(await page.locator('img').evaluate(img=>img.naturalWidth)).toBe(180);
     await page.goto('/?source=home-screen#practice');
-    await expect(page.getByRole('heading',{name:'今天，也来一点电波。'})).toBeVisible();
+    await expect(page.getByRole('heading',{name:'业余无线电考试在线题库'})).toBeVisible();
   }
   await context.setOffline(false);
   const missing=await page.goto('/icons/missing.png');

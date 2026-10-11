@@ -57,5 +57,5 @@ test('独立入口绕过拦截全部请求的旧 Worker，保留同域其他应�
   expect(await page.evaluate(()=>localStorage.getItem('recovery-record-proof'))).toBe('保留学习记录');
   const home=await page.waitForResponse(response=>new URL(response.url()).searchParams.has('force-update') && response.request().isNavigationRequest());
   expect(home.fromServiceWorker()).toBe(false);
-  await expect(page.getByRole('heading',{name:'今天，也来一点电波。'})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'业余无线电考试在线题库'})).toBeVisible();
 });

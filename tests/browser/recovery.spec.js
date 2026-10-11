@@ -29,7 +29,7 @@ test('强制更新绕过缓存、保留记录，注销后从网络返回首页',
   expect(await page.evaluate(key=>localStorage.getItem(key),key)).toBe(before);
   const homeResponse=await page.waitForResponse(response=>new URL(response.url()).searchParams.has('force-update') && response.request().isNavigationRequest());
   expect(homeResponse.fromServiceWorker()).toBe(false);
-  await expect(page.getByRole('heading',{name:'今天，也来一点电波。'})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'业余无线电考试在线题库'})).toBeVisible();
   expect(JSON.parse(await page.evaluate(key=>localStorage.getItem(key),key)).records).toEqual(JSON.parse(before).records);
 });
 

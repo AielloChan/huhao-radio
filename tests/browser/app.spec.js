@@ -4,7 +4,7 @@ import {readFile, writeFile} from 'node:fs/promises';
 const key='radio-a:progress:v1';
 
 async function state(page){return page.evaluate(key=>JSON.parse(localStorage.getItem(key)),key);}
-async function ready(page){await page.goto('/');await expect(page.getByRole('heading',{name:'今天，也来一点电波。'})).toBeVisible();}
+async function ready(page){await page.goto('/');await expect(page.getByRole('heading',{name:'业余无线电考试在线题库'})).toBeVisible();}
 async function leaveQuiz(page){
   if(await page.locator('.immersive').count()){
     await expect(page.locator('.topbar, .class-switcher, .bottom-nav, .desktop-nav, .site-footer')).toHaveCount(0);

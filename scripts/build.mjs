@@ -3,6 +3,7 @@ import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import path from 'node:path';
 import {CLASS_IDS, classConfig} from '../src/catalog.js';
+import {metadata, homeFallback, classPage, sitemap, siteUrl} from './seo.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 async function listFiles(directory, prefix = '') {
@@ -27,6 +28,7 @@ const banks = await Promise.all(CLASS_IDS.map(async classId => {
 const {version: release} = JSON.parse(await readFile(path.join(root, 'package.json'), 'utf8'));
 if (!/^\d+\.\d+\.\d+$/.test(release)) throw new Error('应用版本号须为 主版本.次版本.补丁版本');
 const hash = createHash('sha256').update(release);
+hash.update(siteUrl.href).update(await readFile(new URL('./seo.mjs', import.meta.url)));
 for (const bank of banks) hash.update(bank.classId).update(bank.text);
 hash.update(await readFile(fileURLToPath(import.meta.url)));
 for (const file of files) hash.update(await readFile(path.join(src, file)));
@@ -43,9 +45,16 @@ await cp(src, path.join(dist, assets), {recursive: true});
 await cp(path.join(root, 'public/icons/apple-touch-icon.png'), path.join(dist, assets, 'apple-touch-icon.png'));
 for (const bank of banks) await writeFile(path.join(dist, assets, bank.file), bank.text);
 await writeFile(path.join(dist, assets, 'version.json'), JSON.stringify({version, release}));
-const html = (await readFile(path.join(root, 'index.html'), 'utf8')).replaceAll('__ASSETS__', `./${assets}`);
+const html = (await readFile(path.join(root, 'index.html'), 'utf8')).replaceAll('__ASSETS__', `./${assets}`).replace('__SEO_HEAD__',metadata()).replace('__SEO_HOME__',homeFallback());
 await writeFile(path.join(dist, 'index.html'), html);
-const cached = ['./', './index.html', ...publicFiles.filter(f=>!f.startsWith('_') && !f.startsWith('force-update/')).map(f=>`./${f}`), ...files.map(f => `./${assets}/${f}`), ...banks.map(bank=>`./${assets}/${bank.file}`), `./${assets}/version.json`, `./${assets}/apple-touch-icon.png`];
+const guideRoutes = banks.map(bank=>`${bank.classId.toLowerCase()}/`);
+for (const bank of banks) {
+  const directory = path.join(dist, bank.classId.toLowerCase());
+  await mkdir(directory, {recursive:true});
+  await writeFile(path.join(directory,'index.html'),classPage(bank,assets,release));
+}
+await writeFile(path.join(dist,'sitemap.xml'),sitemap());
+const cached = ['./', './index.html', ...guideRoutes.map(route=>`./${route}`), ...publicFiles.filter(f=>!f.startsWith('_') && !f.startsWith('force-update/')).map(f=>`./${f}`), ...files.map(f => `./${assets}/${f}`), ...banks.map(bank=>`./${assets}/${bank.file}`), `./${assets}/version.json`, `./${assets}/apple-touch-icon.png`];
 await writeFile(path.join(dist, 'sw.js'), `// Generated from the complete application content.\nconst CACHE = 'radio-a-${version}';\nconst ASSETS = ${JSON.stringify(cached)};
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)));

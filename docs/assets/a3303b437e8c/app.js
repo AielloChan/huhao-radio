@@ -1,6 +1,6 @@
 import {makeSession, recordAnswer, finishExam, remainingSeconds, correct, CHAPTERS} from './core.js';
 import {loadState, saveState, emptyState, validateState, storageKey} from './storage.js';
-import {classConfig, selectedClass, SELECTED_CLASS_KEY} from './catalog.js';
+import {CLASS_IDS, classConfig, selectedClass, SELECTED_CLASS_KEY} from './catalog.js';
 import {shell, studyView, examView, wrongView, profileView, quizView, resultView} from './views.js';
 import {escape as e, button, icon, showDialog, closeDialog} from './ui.js';
 import {setupPwa, checkUpdate, offlineReady, appVersion} from './pwa.js';
@@ -241,7 +241,16 @@ window.addEventListener('storage',event=>{
 
 async function init() {
   try {
-    await loadClass(selectedClass());
+    const entry = new URL(location.href);
+    const requestedClass = entry.searchParams.get('class');
+    await loadClass(CLASS_IDS.includes(requestedClass) ? requestedClass : selectedClass());
+    if (entry.searchParams.has('class')) {
+      if (CLASS_IDS.includes(requestedClass)) {
+        try { localStorage.setItem(SELECTED_CLASS_KEY,requestedClass); } catch { /* Practice remains usable without storage. */ }
+      }
+      entry.searchParams.delete('class');
+      history.replaceState(null,'',entry);
+    }
     navigate(location.hash.slice(1));tick();
     setInterval(tick,1000);
     setupPwa(render,()=>!state.exam,toast);
