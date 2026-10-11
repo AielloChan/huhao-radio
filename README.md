@@ -1,6 +1,6 @@
 # 呼号之前 · 无线电 A 类题库
 
-[在线使用](https://aiellochan.github.io/huhao-radio-a/) · [部署记录](https://github.com/AielloChan/huhao-radio-a/deployments)
+[在线使用](https://aiellochan.github.io/huhao-radio/) · [部署记录](https://github.com/AielloChan/huhao-radio/deployments)
 
 面向手机的离线题库 PWA。原生 JavaScript + CSS，无后端、无账号、无运行时第三方依赖。部署于 GitHub Pages，也兼容 Netlify。
 
