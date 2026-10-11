@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex">
+  <meta name="recovery-home" content="../">
+  <title>强制更新 · 呼号之前</title>
+  <style>
+    :root{font-family:system-ui,-apple-system,sans-serif;color:#19382f;background:#f4f3ec;color-scheme:light}
+    body{margin:0;min-height:100svh;display:grid;place-items:center}
+    main{max-width:28rem;margin:24px;padding:28px;border-radius:24px;background:white;box-shadow:0 8px 32px #19382f0d}
+    h1{font-size:1.6rem}p{line-height:1.7}#status{font-weight:600}button{font:inherit;padding:12px 20px;border:0;border-radius:12px;background:#19382f;color:white}
+  </style>
+</head>
+<body>
+  <main>
+    <h1>正在强制更新</h1>
+    <p>清理应用离线缓存，重新获取最新版本。刷题记录、错题本和考试记录会保留。</p>
+    <p id="status" role="status" aria-live="polite">正在清理…</p>
+    <p>请先关闭其他题库页面。需要保持联网；若使用主屏幕应用，请在该应用中打开此入口。</p>
+    <button id="retry" type="button" hidden>重新尝试</button>
+    <noscript>请启用 JavaScript 后重新打开此页面。</noscript>
+  </main>
+  <script>
+    const home = new URL(document.querySelector('meta[name="recovery-home"]').content, location.href);
+    const status = document.querySelector('#status');
+    const retry = document.querySelector('#retry');
+    const cachePrefixes = ['radio-a-', 'huhao-radio-'];
+    const scopes = new Set([home.href]);
+    if (home.pathname === '/huhao-radio/') scopes.add(new URL('/huhao-radio-a/', home).href);
+
+    async function recover() {
+      retry.hidden = true;
+      status.textContent = '正在清理…';
+      try {
+        if (!navigator.onLine) throw new Error('当前离线，请联网后重新尝试。');
+        if (!('serviceWorker' in navigator) || !('caches' in window)) throw new Error('当前环境不支持缓存恢复，请使用 HTTPS 地址在浏览器中打开。');
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(registrations.filter(registration => scopes.has(registration.scope)).map(registration => registration.unregister()));
+        const names = await caches.keys();
+        await Promise.all(names.filter(name => cachePrefixes.some(prefix => name.startsWith(prefix))).map(name => caches.delete(name)));
+        const remaining = await navigator.serviceWorker.getRegistrations();
+        if (remaining.some(registration => scopes.has(registration.scope))) throw new Error('仍有题库页面正在运行，请关闭其他题库页面后重试。');
+        document.querySelector('h1').textContent = '清理完成';
+        for (let seconds = 3; seconds > 0; seconds--) {
+          status.textContent = `缓存已清理，${seconds} 秒后返回首页…`;
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+        home.searchParams.set('force-update', Date.now().toString());
+        location.replace(home.href);
+      } catch (error) {
+        document.querySelector('h1').textContent = '暂未完成更新';
+        status.textContent = error.message || '缓存清理失败，请关闭其他题库页面后重试。';
+        retry.hidden = false;
+      }
+    }
+    retry.addEventListener('click', recover);
+    recover();
+  </script>
+</body>
+</html>

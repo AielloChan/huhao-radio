@@ -36,7 +36,7 @@ await writeFile(path.join(dist, assets, 'questions.json'), bankText);
 await writeFile(path.join(dist, assets, 'version.json'), JSON.stringify({version}));
 const html = (await readFile(path.join(root, 'index.html'), 'utf8')).replaceAll('__ASSETS__', `./${assets}`);
 await writeFile(path.join(dist, 'index.html'), html);
-const cached = ['./', './index.html', ...publicFiles.filter(f=>!f.startsWith('_')).map(f=>`./${f}`), ...files.map(f => `./${assets}/${f}`), `./${assets}/questions.json`, `./${assets}/version.json`];
+const cached = ['./', './index.html', ...publicFiles.filter(f=>!f.startsWith('_') && !f.startsWith('force-update/')).map(f=>`./${f}`), ...files.map(f => `./${assets}/${f}`), `./${assets}/questions.json`, `./${assets}/version.json`];
 await writeFile(path.join(dist, 'sw.js'), `// Generated from the complete application content.\nconst CACHE = 'radio-a-${version}';\nconst ASSETS = ${JSON.stringify(cached)};
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)));
@@ -56,6 +56,11 @@ self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
   const scope = new URL(self.registration.scope);
   if (event.request.method !== 'GET' || url.origin !== scope.origin || !url.pathname.startsWith(scope.pathname)) return;
+  // Keep recovery independent of application caches and navigation fallback.
+  if (url.pathname === scope.pathname + 'force-update' || url.pathname.startsWith(scope.pathname + 'force-update/')) {
+    event.respondWith(fetch(event.request, {cache: 'no-store'}));
+    return;
+  }
   event.respondWith((async () => {
     const cache = await caches.open(CACHE);
     const isAppEntry = url.pathname === scope.pathname || url.pathname === scope.pathname + 'index.html';

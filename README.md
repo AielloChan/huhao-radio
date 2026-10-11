@@ -50,6 +50,18 @@ git push origin main
 
 待 GitHub Pages 发布成功，用户重新打开应用或点击「我的 → 检查更新」，会在新版本缓存完整后看到更新提示。考试过程中延后激活更新，学习记录保留。若换域名或仓库地址，请先导出备份再迁移。
 
+### 强制更新入口
+
+应用无法正常更新时，联网打开 [force-update 恢复页](https://aiellochan.github.io/huhao-radio/force-update/)。页面会自动注销本应用的 Service Worker（包括仓库改名前的作用域），删除全部 `radio-a-` / `huhao-radio-` 应用缓存，成功后倒计时 3 秒返回带时间戳的首页，重新下载当前版本。清理失败会显示原因和重试按钮，不会自动跳转。
+
+恢复页的脚本和样式全部内置，不依赖应用代码；不加入预缓存，Service Worker 对 `/force-update` 和 `/force-update/` 下的请求只使用 `fetch(..., {cache: 'no-store'})`，不读取或写入 Cache Storage。Netlify 另外设置 `Cache-Control: no-store`；GitHub Pages 不支持自定义此响应头。网页脚本无法清空浏览器全部 HTTP 缓存，返回首页时通过时间戳绕过旧首页缓存。
+
+该入口保留 localStorage 中的刷题、错题和考试记录，也不会清理同域其他应用的缓存或 Service Worker。使用前请关闭其他题库标签页，避免仍运行的旧页面重新写入缓存。Safari 和主屏幕 App 的存储可能独立，需在发生故障的环境中打开恢复入口。
+
+**独立备用入口：** 若上面的地址也被旧 Worker 拦住，直接打开 [独立恢复页](https://aiellochan.github.io/huhao-radio-recovery/)。它在同域的独立目录发布，位于 `/huhao-radio/` 与旧 `/huhao-radio-a/` 作用域之外，不注册 Worker，因此不依赖主应用 Worker 配合。该方式只恢复当前浏览器存储环境，不能跨 Safari 与独立 PWA 的存储隔离。
+
+独立站点由 [huhao-radio-recovery 仓库](https://github.com/AielloChan/huhao-radio-recovery) 发布。唯一源文件仍是本仓库的 `public/force-update/index.html`；修改后运行 `npm run build:recovery`，将 `recovery-dist/` 全部文件（包括 `.nojekyll`）同步到独立仓库根目录并提交发布。此入口不注册 Worker，勿将它纳入主应用 Worker 的作用域。GitHub Pages 的 HTTP 缓存仍受平台控制，必要时在恢复地址加 `?t=任意新值`。
+
 ## 可选：Netlify 部署
 
 ### 直接拖拽

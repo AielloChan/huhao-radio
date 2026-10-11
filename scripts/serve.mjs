@@ -8,7 +8,7 @@ const port = Number(process.env.PORT || 4173);
 http.createServer(async (req, res) => {
   try {
     const url = new URL(req.url, 'http://localhost');
-    const filename = path.resolve(root, `.${decodeURIComponent(url.pathname === '/' ? '/index.html' : url.pathname)}`);
+    const filename = path.resolve(root, `.${decodeURIComponent(url.pathname.endsWith('/') ? url.pathname + 'index.html' : url.pathname)}`);
     if (!filename.startsWith(root)) throw new Error('Invalid path');
     const data = await readFile(filename);
     res.writeHead(200, {'Content-Type':types[path.extname(filename)] || 'application/octet-stream','Cache-Control':'no-store'});
