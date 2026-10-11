@@ -7,7 +7,7 @@ async function state(page){return page.evaluate(key=>JSON.parse(localStorage.get
 async function ready(page){await page.goto('/');await expect(page.getByRole('heading',{name:'今天，也来一点电波。'})).toBeVisible();}
 async function leaveQuiz(page){
   if(await page.locator('.immersive').count()){
-    await expect(page.locator('.topbar, .class-selector, .bottom-nav, .desktop-nav, .site-footer')).toHaveCount(0);
+    await expect(page.locator('.topbar, .class-switcher, .bottom-nav, .desktop-nav, .site-footer')).toHaveCount(0);
     await page.getByRole('button',{name:'返回',exact:true}).click();
     await expect(page.locator('.topbar')).toBeVisible();
     await expect(page.locator('.bottom-nav')).toBeVisible();

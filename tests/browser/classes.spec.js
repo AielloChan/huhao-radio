@@ -71,7 +71,7 @@ test('未打开过的 B/C 题库可离线组卷、交卷、恢复计时及附图
     expect(saved.exam.ids).toHaveLength(total);
     expect(saved.exam.ids.filter(id=>byId.get(id).answers.length===1)).toHaveLength(single);
     expect(saved.exam.deadline-saved.exam.startedAt).toBe(minutes*60000);
-    await expect(page.locator('.class-selector')).toHaveCount(0);
+    await expect(page.locator('.class-switcher')).toHaveCount(0);
     await page.getByRole('button',{name:'返回',exact:true}).click();
     await expect(page.getByRole('button',{name:'A 类',exact:true})).toBeDisabled();
     if(classId==='B'){
