@@ -17,4 +17,14 @@
 /* Stop viewport bounce and keep dialog scrolling inside its own boundary. */
 html,body{overscroll-behavior:none}dialog,.answer-grid{overscroll-behavior:contain}
 
+/* A short press settles into the surface; release returns without a spring. */
+:where(button,a.primary,a.secondary,.mode-card,.resource-link,.nav-link,.bottom-nav a,.brand):not(:disabled){transition:transform 160ms ease-out,filter 160ms ease-out,box-shadow 160ms ease-out,background-color 160ms ease-out,border-color 160ms ease-out}
+.primary,.hero-button{box-shadow:inset 0 1px 0 #ffffff24,0 2px 3px #173d3020,0 5px 12px #173d300c}
+.secondary,.mode-card,.resource-link{box-shadow:inset 0 1px 0 #ffffffb3,0 2px 4px #173d3008}
+.chapter-row,.history-row,.wrong-prompt{--press-scale:.995}.option,.mode-card,.resource-link{--press-scale:.988}.class-switcher button,.icon-button,.bottom-nav a{--press-scale:.94}
+:where(button,a.primary,a.secondary,.mode-card,.resource-link,.nav-link,.bottom-nav a,.brand):not(:disabled):is(:active,[data-pressed]){transform:translateY(1px) scale(var(--press-scale,.975));filter:brightness(.94);transition-duration:65ms}
+:is(.primary,.hero-button,.secondary):not(:disabled):is(:active,[data-pressed]){box-shadow:inset 0 2px 4px #142e3024,0 1px 1px #173d3010}
+.chapter-row:not(:disabled):is(:active,[data-pressed]),.history-row:not(:disabled):is(:active,[data-pressed]){background:#e8eddf}
+@media(prefers-reduced-motion:reduce){:where(button,a.primary,a.secondary,.mode-card,.resource-link,.nav-link,.bottom-nav a,.brand):not(:disabled):is(:active,[data-pressed]){transform:none}}
+
 .discovery{margin-top:28px;padding-top:22px;border-top:1px solid var(--line)}.discovery h2{font-size:16px}.discovery>p{font-size:12px;line-height:1.9;margin:12px 0;color:#637360}.guide-links{display:flex;flex-wrap:wrap;gap:8px 16px}.guide-links a{display:inline-flex;align-items:center;min-height:44px;font-size:12px;color:var(--green);text-decoration:underline;text-underline-offset:3px}.guide-page{max-width:820px;margin:0 auto;padding:calc(28px + env(safe-area-inset-top,0px)) max(21px,env(safe-area-inset-right,0px)) calc(28px + env(safe-area-inset-bottom,0px));line-height:1.9}.guide-page h1{font-size:clamp(24px,5vw,36px);line-height:1.4;margin:24px 0 16px}.guide-page h2{font-size:20px;margin:28px 0 12px}.guide-page h3{font-size:15px}.guide-page p{margin:12px 0}.guide-page ul,.guide-page ol{padding-left:24px}.guide-page li{margin:8px 0}.guide-page a:not(.primary):not(.secondary){text-decoration:underline;text-underline-offset:3px}.guide-actions{display:flex;flex-wrap:wrap;gap:12px;margin:24px 0}.guide-question{border:1px solid var(--line);border-radius:14px;padding:20px;margin:16px 0;background:var(--white)}.guide-question summary{cursor:pointer;min-height:44px;line-height:44px}.guide-page .site-footer{margin-top:28px;padding-bottom:24px}

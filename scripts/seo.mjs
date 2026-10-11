@@ -82,7 +82,7 @@ export function classPage(bank, assets, release) {
   <section><h2>手机上可以离线刷题吗？</h2><p>可以。联网进入题库并等待“离线已就绪”后，即可离线刷题和模拟考试；iPhone 可通过 Safari 分享菜单添加到主屏幕。A、B、C 类学习记录分别保存在当前浏览器，不会自动跨设备同步，可在“我的”中导出备份。</p></section>
   ${discoveryLinks('../')}
   <footer class="site-footer"><span>作者 <a href="mailto:aiello.chan@gmail.com">Aiello Chan</a></span><a href="https://github.com/AielloChan/huhao-radio">GitHub</a><span>v${e(release)}</span></footer>
-</main></body></html>`;
+</main><script type="module" src="../${assets}/press-feedback.js"></script></body></html>`;
 }
 
 export function sitemap() {

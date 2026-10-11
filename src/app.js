@@ -4,6 +4,7 @@ import {CLASS_IDS, classConfig, selectedClass, SELECTED_CLASS_KEY} from './catal
 import {shell, studyView, examView, wrongView, profileView, quizView, resultView} from './views.js';
 import {escape as e, button, icon, showDialog, closeDialog} from './ui.js';
 import {setupPwa, checkUpdate, offlineReady, appVersion} from './pwa.js';
+import './press-feedback.js';
 
 const root = document.querySelector('#app');
 let bank, bankMap, state;
