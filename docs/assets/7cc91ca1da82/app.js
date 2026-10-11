@@ -75,6 +75,7 @@ function render() {
     screen = 'home';
     body = tab === 'exam' ? examView(state,bank.classId) : tab === 'wrong' ? wrongView(state,bank,wrongSearch) : tab === 'profile' ? profileView(state,bank,status) : studyView(state,bank);
   }
+  document.body.classList.toggle('is-quizzing',screen==='quiz');
   root.innerHTML = shell(tab, `${storageMessage ? `<div class="storage-warning" role="alert">${e(storageMessage)} ${saveBlocked ? button('下载原始记录','export-raw','text-button') : ''}</div>` : ''}${body}`,status,screen==='quiz');
 }
 function navigate(next) {

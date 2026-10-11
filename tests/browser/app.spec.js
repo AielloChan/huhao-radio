@@ -5,19 +5,27 @@ const key='radio-a:progress:v1';
 
 async function state(page){return page.evaluate(key=>JSON.parse(localStorage.getItem(key)),key);}
 async function ready(page){await page.goto('/');await expect(page.getByRole('heading',{name:'今天，也来一点电波。'})).toBeVisible();}
+async function leaveQuiz(page){
+  if(await page.locator('.immersive').count()){
+    await expect(page.locator('.topbar, .class-selector, .bottom-nav, .desktop-nav, .site-footer')).toHaveCount(0);
+    await page.getByRole('button',{name:'返回',exact:true}).click();
+    await expect(page.locator('.topbar')).toBeVisible();
+    await expect(page.locator('.bottom-nav')).toBeVisible();
+  }
+}
 
-test('点击当前底部导航可返回首页且保留答题进度',async({page})=>{
+test('沉浸答题隐藏全站导航，返回恢复界面并保留练习与考试进度',async({page})=>{
   await ready(page);
-  await page.locator('.bottom-nav').getByRole('link',{name:'刷题',exact:true}).click();
+  await leaveQuiz(page);await page.locator('.bottom-nav').getByRole('link',{name:'刷题',exact:true}).click();
   await page.getByRole('button',{name:'开始顺序刷题'}).click();
   await page.locator('.option').first().click();
   const practice=(await state(page)).practice;
-  await page.locator('.bottom-nav').getByRole('link',{name:'刷题',exact:true}).click();
+  await leaveQuiz(page);await page.locator('.bottom-nav').getByRole('link',{name:'刷题',exact:true}).click();
   await expect(page.getByRole('button',{name:'继续上次练习'})).toBeVisible();
   expect((await state(page)).practice).toEqual(practice);
-  await page.locator('.bottom-nav').getByRole('link',{name:'模拟考试'}).click();
+  await leaveQuiz(page);await page.locator('.bottom-nav').getByRole('link',{name:'模拟考试'}).click();
   await page.getByRole('button',{name:'开始模拟考试'}).click();
-  await page.locator('.bottom-nav').getByRole('link',{name:'模拟考试'}).click();
+  await leaveQuiz(page);await page.locator('.bottom-nav').getByRole('link',{name:'模拟考试'}).click();
   await expect(page.getByRole('button',{name:'继续未完成的考试'})).toBeVisible();
 });
 
@@ -35,7 +43,7 @@ test('手机刷题、多选判分、错题、恢复与移出',async({page})=>{
   await page.reload();
   await page.getByRole('button',{name:'继续上次练习'}).click();
   await expect(page.getByText('这道题，再记住一次。')).toBeVisible();
-  await page.locator('.bottom-nav').getByRole('link',{name:'错题本'}).click();
+  await leaveQuiz(page);await page.locator('.bottom-nav').getByRole('link',{name:'错题本'}).click();
   await expect(page.locator('.wrong-item')).toHaveCount(1);
   await page.getByRole('button',{name:'移出错题本'}).click();
   await page.getByRole('button',{name:'确认移出'}).click();
@@ -44,7 +52,7 @@ test('手机刷题、多选判分、错题、恢复与移出',async({page})=>{
 });
 
 test('考试隐藏答案、恢复选项、计时过期自动交卷且不重复入库',async({page})=>{
-  await ready(page);await page.locator('.bottom-nav').getByRole('link',{name:'模拟考试'}).click();
+  await ready(page);await leaveQuiz(page);await page.locator('.bottom-nav').getByRole('link',{name:'模拟考试'}).click();
   await page.getByRole('button',{name:'开始模拟考试'}).click();
   const original=(await state(page)).exam;
   await page.locator('[data-action="select"]').first().click();
@@ -95,7 +103,7 @@ test('备份导出、清空、导入可恢复',async({page})=>{
   await ready(page);await page.getByRole('button',{name:'开始顺序刷题'}).click();
   await page.locator('.option').first().click();await page.getByRole('button',{name:'确认答案'}).click();
   const before=await state(page);
-  await page.locator('.bottom-nav').getByRole('link',{name:'我的',exact:true}).click();
+  await leaveQuiz(page);await page.locator('.bottom-nav').getByRole('link',{name:'我的',exact:true}).click();
   const downloaded=page.waitForEvent('download');await page.getByRole('button',{name:'导出学习记录'}).click();
   const download=await downloaded;expect(download.suggestedFilename()).toContain('.json');
   await page.getByRole('button',{name:'清空记录',exact:true}).click();await page.getByRole('button',{name:'确认清空'}).click();
@@ -109,7 +117,7 @@ test('新版本提示、考试期间延后更新、交卷后更新保留记录',
   await ready(page);
   await page.evaluate(()=>navigator.serviceWorker.ready);
   await expect.poll(()=>page.evaluate(()=>!!navigator.serviceWorker.controller)).toBe(true);
-  await page.locator('.bottom-nav').getByRole('link',{name:'模拟考试'}).click();
+  await leaveQuiz(page);await page.locator('.bottom-nav').getByRole('link',{name:'模拟考试'}).click();
   await page.getByRole('button',{name:'开始模拟考试'}).click();
   await page.locator('.option').first().click();
   const workerPath=new URL('../../dist/sw.js',import.meta.url);
@@ -117,10 +125,14 @@ test('新版本提示、考试期间延后更新、交卷后更新保留记录',
   try {
     await writeFile(workerPath,original.replace(/const CACHE = '([^']+)'/,"const CACHE = '$1-update-test'"));
     await page.evaluate(async()=>{await (await navigator.serviceWorker.getRegistration()).update();});
+    await expect(page.locator('#update')).toHaveJSProperty('hidden',false);
+    await expect(page.locator('#update')).toBeHidden();
+    await leaveQuiz(page);
     await expect(page.locator('#update')).toBeVisible();
     await page.locator('#update').getByRole('button',{name:'更新',exact:true}).click();
     await expect(page.getByText('考试正在进行，请交卷后再更新')).toBeVisible();
     expect((await state(page)).exam).not.toBeNull();
+    await page.getByRole('button',{name:'继续未完成的考试'}).click();
     await page.getByRole('button',{name:'交卷',exact:true}).click();
     await page.getByRole('button',{name:'确认交卷',exact:true}).click();
     const before=await state(page);
