@@ -1,0 +1,36 @@
+/* Short, directional transitions; the controls stay on their fixed surface. */
+.quiz-content{overflow-x:hidden}
+.quiz-progress strong{display:inline-flex;min-width:3ch;font-variant-numeric:tabular-nums;vertical-align:baseline}
+.number-reel{display:grid;min-width:3ch;height:1.35em;line-height:1.35;overflow:hidden;text-align:left}
+.number-reel>span{grid-area:1/1}
+
+/* Move the antenna with the radio as one object. */
+.radio-unit{position:absolute;inset:0;display:grid;place-items:center;animation:radio-float 5.2s ease-in-out infinite;animation-delay:var(--float-phase,0ms)}
+.radio-art .orbit{border-color:#cbd8b332;animation:radio-wave 6s linear infinite;animation-delay:var(--wave-phase,0ms)}
+.radio-art .orbit-two{animation-delay:calc(var(--wave-phase,0ms) - 2s)}
+.radio-art .orbit-three{animation-delay:calc(var(--wave-phase,0ms) - 4s)}
+.radio-art:not(.is-motion-visible) .orbit,.radio-art:not(.is-motion-visible) .radio-unit,
+.motion-paused .radio-art .orbit,.motion-paused .radio-unit{animation-play-state:paused}
+@keyframes radio-wave{
+  0%{transform:scale(.65);opacity:0}
+  16%{opacity:.8}
+  100%{transform:scale(2.05);opacity:0}
+}
+@keyframes radio-float{
+  0%,100%{transform:translateY(0) rotate(.25deg)}
+  50%{transform:translateY(-5px) rotate(-.6deg)}
+}
+
+dialog[open]{animation:dialog-arrive 260ms cubic-bezier(.22,1,.36,1)}
+dialog[open]::backdrop{animation:veil-arrive 180ms ease-out}
+.toast:not([hidden]){animation:toast-arrive 240ms cubic-bezier(.22,1,.36,1)}
+@keyframes dialog-arrive{
+  0%{opacity:0;transform:translateY(14px) scale(.975)}
+  80%{opacity:1;transform:translateY(-1px) scale(1.002)}
+  100%{opacity:1;transform:none}
+}
+@keyframes veil-arrive{from{opacity:0}to{opacity:1}}
+@keyframes toast-arrive{from{opacity:0;transform:translate(-50%,8px) scale(.98)}to{opacity:1;transform:translate(-50%,0) scale(1)}}
+@media(prefers-reduced-motion:reduce){
+  .radio-art .orbit,.radio-unit,dialog[open],dialog[open]::backdrop,.toast:not([hidden]){animation:none!important}
+}

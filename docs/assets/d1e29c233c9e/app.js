@@ -5,9 +5,11 @@ import {shell, studyView, examView, wrongView, profileView, quizView, resultView
 import {escape as e, button, icon, showDialog, closeDialog} from './ui.js';
 import {setupPwa, checkUpdate, offlineReady, appVersion} from './pwa.js';
 import {TABS, loadView, saveView, restoreView} from './view-state.js';
+import {setupMotion} from './motion.js';
 import './press-feedback.js';
 
 const root = document.querySelector('#app');
+const motion = setupMotion(root);
 let bank, bankMap, state;
 let tab = 'study';
 let screen = 'home';
@@ -69,24 +71,37 @@ function persist() {
   catch { storageMessage = '当前无法保存记录，请先导出备份。'; toast(storageMessage); return false; }
 }
 function currentSession() { return review || (sessionKind === 'exam' ? state.exam : state.practice); }
+function scrollPosition() { return screen === 'quiz' ? document.querySelector('.quiz-content')?.scrollTop ?? 0 : window.scrollY; }
 function persistView() {
   if (!bank || switching) return;
   const saved = saveView({classId:bank.classId, tab, screen, sessionKind:review ? null : sessionKind,
     sessionId:currentSession()?.id ?? null, resultId:result?.id ?? null,
     reviewMode:review ? (review.ids.length === result.ids.length ? 'all' : 'errors') : null,
-    reviewIndex:review?.index ?? null, wrongSearch, scrollY:pendingScroll ?? window.scrollY});
+    reviewIndex:review?.index ?? null, wrongSearch, scrollY:pendingScroll ?? scrollPosition()});
   if (!saved && !viewSaveFailed) toast('当前无法保存页面位置，下次打开可能回到首页。学习记录可在「我的」中导出备份。');
   viewSaveFailed = !saved;
 }
-function top() { pendingScroll=null; window.scrollTo({top:0, behavior:'instant'}); persistView(); }
+function top() {
+  pendingScroll=null;
+  document.querySelector('.quiz-content')?.scrollTo({top:0,behavior:'instant'});
+  window.scrollTo({top:0, behavior:'instant'});
+  persistView();
+}
 function restoreScroll() {
   if (pendingScroll === null) return;
-  window.scrollTo({top:pendingScroll,behavior:'instant'});
+  const scroller = screen === 'quiz' ? document.querySelector('.quiz-content') : window;
+  scroller?.scrollTo({top:pendingScroll,behavior:'instant'});
   if ([...root.querySelectorAll('img')].every(image=>image.complete)) pendingScroll=null;
   persistView();
 }
 function render() {
   if (!bank) return;
+  motion.beforeRender();
+  const quizScroll = document.querySelector('.quiz-content')?.scrollTop ?? 0;
+  const previousImage = root.querySelector('.question-figure img');
+  const imageWidth = previousImage?.naturalWidth || Number(previousImage?.getAttribute('width'));
+  const imageHeight = previousImage?.naturalHeight || Number(previousImage?.getAttribute('height'));
+  const imageSize = imageWidth > 0 && imageHeight > 0 ? {src:previousImage.getAttribute('src'),width:imageWidth,height:imageHeight} : null;
   const status = {online:navigator.onLine, ready:offlineReady, version:appVersion, classId:bank.classId, switching, examActive:!!state.exam};
   let body;
   if (screen === 'quiz' && currentSession()) body = quizView(currentSession(),bankMap,!!review);
@@ -97,6 +112,12 @@ function render() {
   }
   document.body.classList.toggle('is-quizzing',screen==='quiz');
   root.innerHTML = shell(tab, `${storageMessage ? `<div class="storage-warning" role="alert">${e(storageMessage)} ${saveBlocked ? button('下载原始记录','export-raw','text-button') : ''}</div>` : ''}${body}`,status,screen==='quiz');
+  const nextImage = root.querySelector('.question-figure img');
+  if (imageSize && nextImage?.getAttribute('src') === imageSize.src) {
+    nextImage.width = imageSize.width;
+    nextImage.height = imageSize.height;
+  }
+  document.querySelector('.quiz-content')?.scrollTo({top:quizScroll,behavior:'instant'});
   if (location.hash !== `#${tab}`) history.replaceState(null,'',`#${tab}`);
   persistView();
   if (pendingScroll !== null) {
@@ -106,6 +127,11 @@ function render() {
       image.addEventListener('error',restoreScroll,{once:true});
     });
   }
+  const session = screen === 'quiz' ? currentSession() : null;
+  motion.afterRender({page:`${bank.classId}:${tab}:${screen}:${session?.id ?? result?.id ?? ''}:${review ? 'review' : sessionKind ?? ''}`,
+    tab, screen, index:session?.index ?? 0, question:session?.ids[session.index] ?? null,
+    selection:session ? [...(session.answers[session.ids[session.index]] || [])].sort().join(',') : '',
+    checked:session ? !!(review || session.checked[session.ids[session.index]]) : false});
 }
 function navigate(next) {
   tab = TABS.includes(next) ? next : 'study';
@@ -232,8 +258,9 @@ document.addEventListener('click', event => {
   pendingScroll = null;
   if (switching) { event.preventDefault(); return; }
   const navigation = event.target.closest('a[href^="#"]');
-  if (navigation && navigation.hash === location.hash) {
+  if (navigation) {
     event.preventDefault();
+    if (navigation.hash !== location.hash) history.pushState(null,'',navigation.hash);
     navigate(navigation.hash.slice(1));
     return;
   }
@@ -261,16 +288,17 @@ document.addEventListener('change', async event => {
   }catch(error){toast(`导入失败：${error.message}`);}
   event.target.value='';
 });
-window.addEventListener('hashchange',()=>navigate(location.hash.slice(1)));
+window.addEventListener('hashchange',event=>navigate(new URL(event.newURL).hash.slice(1)));
 window.addEventListener('online',render);
 window.addEventListener('offline',render);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)tick();else persistView();});
 window.addEventListener('pagehide',persistView);
 for (const type of ['pointerdown','wheel','keydown']) document.addEventListener(type,()=>{pendingScroll=null;},{passive:true});
-window.addEventListener('scroll',()=>{
+document.addEventListener('scroll',event=>{
+  if (event.target !== document && !event.target.matches?.('.quiz-content')) return;
   if (scrollSaveTimer) return;
   scrollSaveTimer=setTimeout(()=>{scrollSaveTimer=null;persistView();},100);
-},{passive:true});
+},{passive:true,capture:true});
 window.addEventListener('storage',event=>{
   if(!bank || event.key!==storageKey(bank.classId) || saveBlocked)return;
   try {state=loadState(bankMap,bank.classId);review=null;result=null;screen='home';render();toast('已同步另一窗口的学习记录');tick();}catch{toast('另一窗口的记录无法读取，请导出备份后重试');}

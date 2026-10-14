@@ -2,6 +2,16 @@ import {test, expect} from '@playwright/test';
 import {VIEW_KEY} from '../../src/view-state.js';
 const progressKey='radio-a:progress:v1';
 
+test('导航点击与离线状态刷新同时发生时仍进入正确页面',async({page})=>{
+  await page.goto('/');
+  await expect(page.locator('.connection')).toHaveText('离线已就绪');
+  await page.evaluate(()=>{
+    document.querySelector('.bottom-nav a[href="#wrong"]').click();
+    window.dispatchEvent(new Event('online'));
+  });
+  await expect(page.getByRole('heading',{name:'错题本很清爽'})).toBeVisible();
+});
+
 async function reopen(page,context) {
   await page.close();
   const reopened=await context.newPage();

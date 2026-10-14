@@ -17,6 +17,18 @@
 /* Stop viewport bounce and keep dialog scrolling inside its own boundary. */
 html,body{overscroll-behavior:none}dialog,.answer-grid{overscroll-behavior:contain}
 
+/* Keep quiz controls outside the question's scroll area. */
+body.is-quizzing{height:100vh;height:100dvh;overflow:hidden}
+.is-quizzing #app{height:100%}
+.app-shell.immersive{height:100%;min-height:0}
+.immersive .quiz-main{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden}
+.quiz-header,.immersive .quiz-actions{flex-shrink:0}
+.quiz-content{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:12px 3px 0;margin:0 -3px}
+.quiz-content>.fineprint{margin:16px 0}
+.immersive .quiz-actions{margin-top:0;padding-top:12px;border-top:1px solid var(--line);background:var(--paper)}
+.immersive .storage-warning{flex-shrink:0;max-height:20%;overflow:auto}
+.is-quizzing .toast{bottom:calc(92px + env(safe-area-inset-bottom,0px))}
+
 /* A short press settles into the surface; release returns without a spring. */
 :where(button,a.primary,a.secondary,.mode-card,.resource-link,.nav-link,.bottom-nav a,.brand):not(:disabled){transition:transform 160ms ease-out,filter 160ms ease-out,box-shadow 160ms ease-out,background-color 160ms ease-out,border-color 160ms ease-out}
 .primary,.hero-button{box-shadow:inset 0 1px 0 #ffffff24,0 2px 3px #173d3020,0 5px 12px #173d300c}
