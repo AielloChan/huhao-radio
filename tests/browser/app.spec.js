@@ -41,7 +41,6 @@ test('手机刷题、多选判分、错题、恢复与移出',async({page})=>{
   await page.getByRole('button',{name:'确认答案'}).click();
   await expect(page.getByText('这道题，再记住一次。')).toBeVisible();
   await page.reload();
-  await page.getByRole('button',{name:'继续上次练习'}).click();
   await expect(page.getByText('这道题，再记住一次。')).toBeVisible();
   await leaveQuiz(page);await page.locator('.bottom-nav').getByRole('link',{name:'错题本'}).click();
   await expect(page.locator('.wrong-item')).toHaveCount(1);
@@ -58,7 +57,7 @@ test('考试隐藏答案、恢复选项、计时过期自动交卷且不重复�
   await page.locator('[data-action="select"]').first().click();
   await expect(page.locator('.answer-feedback')).toHaveCount(0);
   await page.reload();
-  await page.getByRole('button',{name:'继续未完成的考试'}).click();
+  await expect(page.locator('#timer')).toBeVisible();
   expect((await state(page)).exam.order).toEqual(original.order);
   await page.evaluate(key=>{const s=JSON.parse(localStorage.getItem(key));s.exam.deadline=Date.now()-1000;localStorage.setItem(key,JSON.stringify(s));},key);
   await page.reload();
@@ -80,7 +79,6 @@ test('离线刷新后可练习，记录保留',async({page,context})=>{
   await page.locator('.option').first().click();
   await page.getByRole('button',{name:'确认答案'}).click();
   await page.reload();
-  await page.getByRole('button',{name:'继续上次练习'}).click();
   await expect(page.locator('.answer-feedback')).toBeVisible();
 });
 
@@ -92,7 +90,6 @@ test('官方附图在离线刷题时正常显示',async({page,context})=>{
   data.practice.index=data.practice.ids.indexOf('MC1-0665');
   await page.evaluate(({key,data})=>localStorage.setItem(key,JSON.stringify(data)),{key,data});
   await context.setOffline(true);await page.reload();
-  await page.getByRole('button',{name:'继续上次练习'}).click();
   const image=page.locator('.question-figure img');
   await expect(image).toBeVisible();
   expect(await image.evaluate(img=>img.complete && img.naturalWidth>0)).toBe(true);
@@ -138,7 +135,7 @@ test('新版本提示、考试期间延后更新、交卷后更新保留记录',
     const before=await state(page);
     await page.locator('#update').getByRole('button',{name:'更新',exact:true}).click();
     await expect(page.locator('#update')).toBeHidden();
-    await expect(page.getByRole('button',{name:'开始模拟考试'})).toBeVisible();
+    await expect(page.locator('.result-card')).toBeVisible();
     expect((await state(page)).records).toEqual(before.records);
     expect((await state(page)).history).toEqual(before.history);
   } finally { await writeFile(workerPath,original); }

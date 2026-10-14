@@ -4,6 +4,7 @@ import {CLASS_IDS, classConfig, selectedClass, SELECTED_CLASS_KEY} from './catal
 import {shell, studyView, examView, wrongView, profileView, quizView, resultView} from './views.js';
 import {escape as e, button, icon, showDialog, closeDialog} from './ui.js';
 import {setupPwa, checkUpdate, offlineReady, appVersion} from './pwa.js';
+import {TABS, loadView, saveView, restoreView} from './view-state.js';
 import './press-feedback.js';
 
 const root = document.querySelector('#app');
@@ -19,6 +20,9 @@ let storageMessage = '';
 let toastTimer;
 let switching = false;
 const loadedBanks = new Map();
+let viewSaveFailed = false;
+let scrollSaveTimer;
+let pendingScroll = null;
 
 async function loadClass(classId) {
   if (!loadedBanks.has(classId)) {
@@ -65,7 +69,22 @@ function persist() {
   catch { storageMessage = '当前无法保存记录，请先导出备份。'; toast(storageMessage); return false; }
 }
 function currentSession() { return review || (sessionKind === 'exam' ? state.exam : state.practice); }
-function top() { window.scrollTo({top:0, behavior:'instant'}); }
+function persistView() {
+  if (!bank || switching) return;
+  const saved = saveView({classId:bank.classId, tab, screen, sessionKind:review ? null : sessionKind,
+    sessionId:currentSession()?.id ?? null, resultId:result?.id ?? null,
+    reviewMode:review ? (review.ids.length === result.ids.length ? 'all' : 'errors') : null,
+    reviewIndex:review?.index ?? null, wrongSearch, scrollY:pendingScroll ?? window.scrollY});
+  if (!saved && !viewSaveFailed) toast('当前无法保存页面位置，下次打开可能回到首页。学习记录可在「我的」中导出备份。');
+  viewSaveFailed = !saved;
+}
+function top() { pendingScroll=null; window.scrollTo({top:0, behavior:'instant'}); persistView(); }
+function restoreScroll() {
+  if (pendingScroll === null) return;
+  window.scrollTo({top:pendingScroll,behavior:'instant'});
+  if ([...root.querySelectorAll('img')].every(image=>image.complete)) pendingScroll=null;
+  persistView();
+}
 function render() {
   if (!bank) return;
   const status = {online:navigator.onLine, ready:offlineReady, version:appVersion, classId:bank.classId, switching, examActive:!!state.exam};
@@ -78,9 +97,18 @@ function render() {
   }
   document.body.classList.toggle('is-quizzing',screen==='quiz');
   root.innerHTML = shell(tab, `${storageMessage ? `<div class="storage-warning" role="alert">${e(storageMessage)} ${saveBlocked ? button('下载原始记录','export-raw','text-button') : ''}</div>` : ''}${body}`,status,screen==='quiz');
+  if (location.hash !== `#${tab}`) history.replaceState(null,'',`#${tab}`);
+  persistView();
+  if (pendingScroll !== null) {
+    requestAnimationFrame(restoreScroll);
+    root.querySelectorAll('img').forEach(image=>{
+      image.addEventListener('load',restoreScroll,{once:true});
+      image.addEventListener('error',restoreScroll,{once:true});
+    });
+  }
 }
 function navigate(next) {
-  tab = ['study','exam','wrong','profile'].includes(next) ? next : 'study';
+  tab = TABS.includes(next) ? next : 'study';
   screen = 'home'; review = null; sessionKind = null;
   render(); top();
 }
@@ -201,6 +229,7 @@ const actions = {
   })
 };
 document.addEventListener('click', event => {
+  pendingScroll = null;
   if (switching) { event.preventDefault(); return; }
   const navigation = event.target.closest('a[href^="#"]');
   if (navigation && navigation.hash === location.hash) {
@@ -212,6 +241,7 @@ document.addEventListener('click', event => {
   if (target && !target.disabled) actions[target.dataset.action]?.(target.dataset.id);
 });
 document.addEventListener('input', event => {
+  pendingScroll = null;
   if(event.target.id==='wrong-search') {
     wrongSearch=event.target.value;
     const cursor=event.target.selectionStart;
@@ -234,7 +264,13 @@ document.addEventListener('change', async event => {
 window.addEventListener('hashchange',()=>navigate(location.hash.slice(1)));
 window.addEventListener('online',render);
 window.addEventListener('offline',render);
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)tick();});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)tick();else persistView();});
+window.addEventListener('pagehide',persistView);
+for (const type of ['pointerdown','wheel','keydown']) document.addEventListener(type,()=>{pendingScroll=null;},{passive:true});
+window.addEventListener('scroll',()=>{
+  if (scrollSaveTimer) return;
+  scrollSaveTimer=setTimeout(()=>{scrollSaveTimer=null;persistView();},100);
+},{passive:true});
 window.addEventListener('storage',event=>{
   if(!bank || event.key!==storageKey(bank.classId) || saveBlocked)return;
   try {state=loadState(bankMap,bank.classId);review=null;result=null;screen='home';render();toast('已同步另一窗口的学习记录');tick();}catch{toast('另一窗口的记录无法读取，请导出备份后重试');}
@@ -244,7 +280,9 @@ async function init() {
   try {
     const entry = new URL(location.href);
     const requestedClass = entry.searchParams.get('class');
-    await loadClass(CLASS_IDS.includes(requestedClass) ? requestedClass : selectedClass());
+    const explicitClass = entry.searchParams.has('class');
+    const savedView = loadView();
+    await loadClass(CLASS_IDS.includes(requestedClass) ? requestedClass : savedView?.classId ?? selectedClass());
     if (entry.searchParams.has('class')) {
       if (CLASS_IDS.includes(requestedClass)) {
         try { localStorage.setItem(SELECTED_CLASS_KEY,requestedClass); } catch { /* Practice remains usable without storage. */ }
@@ -252,7 +290,15 @@ async function init() {
       entry.searchParams.delete('class');
       history.replaceState(null,'',entry);
     }
-    navigate(location.hash.slice(1));tick();
+    const requestedTab = entry.hash.slice(1);
+    const shouldRestore = !explicitClass && !saveBlocked && savedView && (!requestedTab || requestedTab === savedView.tab);
+    const restored = shouldRestore ? restoreView(savedView,state,bankMap) : null;
+    if (restored) {
+      ({tab,screen,sessionKind,result,review,wrongSearch} = restored);
+      pendingScroll = restored.scrollY;
+      render();
+    } else navigate(!shouldRestore && (explicitClass || savedView !== null) && TABS.includes(requestedTab) ? requestedTab : 'study');
+    tick();
     setInterval(tick,1000);
     setupPwa(render,()=>!state.exam,toast);
   }catch(error){root.innerHTML=`<main class="loading"><h1>信号暂时中断</h1><p>${e(error.message)}，请联网后重新加载。</p><button onclick="location.reload()">重新加载</button></main>`;}

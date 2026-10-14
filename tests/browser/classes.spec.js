@@ -96,7 +96,6 @@ test('未打开过的 B/C 题库可离线组卷、交卷、恢复计时及附图
     practiceState.practice.index=practiceState.practice.ids.indexOf(diagram.id);
     await page.evaluate(({key,saved})=>localStorage.setItem(key,JSON.stringify(saved)),{key:storageKey(classId),saved:practiceState});
     await page.reload();
-    await page.getByRole('button',{name:'继续上次练习'}).click();
     await expect(page.locator('.question-figure img')).toBeVisible();
     expect(await page.locator('.question-figure img').evaluate(img=>img.complete && img.naturalWidth>0)).toBe(true);
   }
